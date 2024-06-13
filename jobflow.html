@@ -341,7 +341,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -357,6 +359,18 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-setup">Installation / Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-introduction-to-jobflow-concepts">Basic introduction to Jobflow concepts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission-to-an-hpc-check-pointing-error-handling">Submission to an HPC / Check pointing / Error handling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-storage-data-sharing">Data Storage / Data Sharing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publication-of-the-workflow">Publication of the workflow</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -368,6 +382,68 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="jobflow">
 <h1>jobflow<a class="headerlink" href="#jobflow" title="Link to this heading">#</a></h1>
+<p>Jobflow allows you to build workflows that are not necessarily related to material science. However, it was developed in the context of the Materials Project and therefore forms the basis for atomate2, a software package for workflows related to the data generation of the Materials Project. It was especially build to simplify the definition of dynamic workflows - those that create jobs during run time.</p>
+<section id="installation-setup">
+<h2>Installation / Setup<a class="headerlink" href="#installation-setup" title="Link to this heading">#</a></h2>
+<p>Jobflow itself can be installed via ‘pip install‘ and directly run with the default setup. Jobflow will then internally rely on a predefined database which is currently a memory database as defined in the software package maggma. For large-scale usage, a MongoDB-like database might be specified for each project in a jobflow.yaml file.
+To run jobflow in a high-throughput setup (i.e., parallel execution of independent parts in the workflow), additional packages are required. Currently, fireworks (<a class="reference external" href="https://materialsproject.github.io/fireworks/">https://materialsproject.github.io/fireworks/</a>) and jobflow-remote (<a class="reference external" href="https://matgenix.github.io/jobflow-remote/">https://matgenix.github.io/jobflow-remote/</a>) exist. They both require a MongoDB database.
+In the case of FireWorks, however, a MongoDB database needs to be connected to the compute nodes. Jobflow-remote allows remote submission options that only require a MongoDB database on the submitting computer but not the compute nodes. It can also deal with two-factor authentification.</p>
+</section>
+<section id="basic-introduction-to-jobflow-concepts">
+<h2>Basic introduction to Jobflow concepts<a class="headerlink" href="#basic-introduction-to-jobflow-concepts" title="Link to this heading">#</a></h2>
+<p>Before starting with implementing a new simulation core, we need to discuss the core concepts of jobflow. jobflow has been written in Python. Jobflow defines Job and Flow objects. Jobs are classes that allow for the delayed execution of a function. Functions can be easily transformed into a Job with the &#64;job decorator, as demonstrated here with a test function:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jobflow</span> <span class="kn">import</span> <span class="n">job</span>
+<span class="nd">@job</span>
+<span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">my_parameter</span>
+
+<span class="n">job1</span> <span class="o">=</span> <span class="n">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To build workflows, the Flow object is used. Here, Jobs are connected via their outputs so that it is possible to derive the order of the Jobs as run time. To build the workflow, only the list of connected Jobs has to be used to initialize a flow.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jobflow</span> <span class="kn">import</span> <span class="n">job</span><span class="p">,</span> <span class="n">Flow</span>
+<span class="nd">@job</span>
+<span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">my_parameter</span>
+<span class="nd">@job</span>
+<span class="k">def</span> <span class="nf">my_second_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">my_parameter</span>
+
+<span class="n">job1</span> <span class="o">=</span> <span class="n">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">job2</span> <span class="o">=</span> <span class="n">my_second_function</span><span class="p">(</span><span class="n">job1</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Flow</span><span class="p">([</span><span class="n">job1</span><span class="p">,</span> <span class="n">job2</span><span class="p">],</span> <span class="n">job2</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To simplify the implementation of Jobs and Flow, the Maker object has been introduced. It is an extended dataclass object that generates a Job or Flow with the make method. Dataclasses are used as they allow to define immutable default values. These Makers can then be used to reuse code via usual inheritance in Python.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">jobflow</span> <span class="kn">import</span> <span class="n">Maker</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">MyMaker</span><span class="p">(</span><span class="n">Maker</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;My Maker&quot;</span>
+    <span class="n">scaling</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.1</span>
+
+<span class="nd">@job</span>
+<span class="k">def</span> <span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">my_parameter</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span>
+
+<span class="n">job1</span><span class="o">=</span><span class="n">MyMaker</span><span class="p">()</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">my_parameter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Instead of returning a Job or Flow object, also a Response object can be returned, which allows the definition of dynamic workflows where the number of additional jobs is unclear before execution. There are different options how exactly the Response object will insert the new list of jobs.
+We will now use this knowledge to implement the Quantum Espresso-related tasks. It’s important to point out that this is only a basic implementation, and further extensions towards data validation or for nicer user experience can be added.</p>
+<p>One additional point needs to be mentioned: all outputs of a job need to be transformed into a json-like format. Therefore, we use a pymatgen Structure object here instead of an ase Atoms object. Structure inherits from the Python package monty’s MSONable class allowing an easy serialization into a dict. In addition, commands to execute jobs might be set in such a way that users can easily adapt them in a configuration file.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">subprocess</span>
@@ -707,6 +783,28 @@ Note: The following floating-point exceptions are signalling: IEEE_INVALID_FLAG
 </div>
 </div>
 </section>
+<section id="submission-to-an-hpc-check-pointing-error-handling">
+<h2>Submission to an HPC / Check pointing / Error handling<a class="headerlink" href="#submission-to-an-hpc-check-pointing-error-handling" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>jobflow: has a command to run jobs in serial with a simple job script</p></li>
+<li><p>fireworks and jobflow-remote exist to simplify submission of jobs, they allow for checkpointing</p></li>
+<li><p>error handling can be implemented but is not directly handled at the jobflow level, currently in atomate2, we rely on custodian</p></li>
+</ul>
+</section>
+<section id="data-storage-data-sharing">
+<h2>Data Storage / Data Sharing<a class="headerlink" href="#data-storage-data-sharing" title="Link to this heading">#</a></h2>
+<p>Key data can be saved in a dedicated MongoDB-like database. This data can be validated with the help of
+pydantic. The latter also allows a direct connection to Fast-API. The Materials Project data generation
+relies on similar features. Direct calculation outputs will be saved on the computer where the job has been
+run. There are no dedicated mechanisms to save whole projects. The database can, however, be used to
+accomplish this.</p>
+</section>
+<section id="publication-of-the-workflow">
+<h2>Publication of the workflow<a class="headerlink" href="#publication-of-the-workflow" title="Link to this heading">#</a></h2>
+<p>The jobflow infrastructure currently does not provide a dedicated platform for publishing a workflow. However, workflows related to computational materials science have been collected in the pacakge atomate2. In
+addition, users can build their own package by relying on jobflow and share it as any Python project.</p>
+</section>
+</section>
 
     <script type="text/x-thebe-config">
     {
@@ -762,6 +860,25 @@ Note: The following floating-point exceptions are signalling: IEEE_INVALID_FLAG
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-setup">Installation / Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-introduction-to-jobflow-concepts">Basic introduction to Jobflow concepts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission-to-an-hpc-check-pointing-error-handling">Submission to an HPC / Check pointing / Error handling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-storage-data-sharing">Data Storage / Data Sharing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publication-of-the-workflow">Publication of the workflow</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
