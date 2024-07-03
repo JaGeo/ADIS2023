@@ -401,7 +401,7 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 
 
 <span class="nd">@job</span>
-<span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">my_parameter</span>
 
 
@@ -417,12 +417,12 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 
 
 <span class="nd">@job</span>
-<span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">my_parameter</span>
 
 
 <span class="nd">@job</span>
-<span class="k">def</span> <span class="nf">my_second_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">my_second_function</span><span class="p">(</span><span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">my_parameter</span>
 
 
@@ -470,7 +470,7 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
     <span class="n">scaling</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.1</span>
 
     <span class="nd">@job</span>
-    <span class="k">def</span> <span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">my_parameter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">my_parameter</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span>
 
 
@@ -534,8 +534,12 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pymatgen.io.ase</span> <span class="kn">import</span> <span class="n">MSONAtoms</span>
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
-<span class="k">def</span> <span class="nf">generate_structures</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span><span class="p">,</span> <span class="n">strain_lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">)):</span>  <span class="c1"># structure should be of ase Atoms type</span>
-    <span class="n">structure</span><span class="o">=</span><span class="n">MSONAtoms</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">generate_structures</span><span class="p">(</span>
+    <span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span><span class="p">,</span> <span class="n">strain_lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="p">):</span>  <span class="c1"># structure should be of ase Atoms type</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">MSONAtoms</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
     <span class="n">structure_lst</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">strain</span> <span class="ow">in</span> <span class="n">strain_lst</span><span class="p">:</span>
         <span class="n">structure_strain</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -551,7 +555,7 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 <p>Then we define a function to plot and save the (E, V) curve as a PNG file.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_energy_volume_curve</span><span class="p">(</span><span class="n">volume_lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">energy_lst</span><span class="p">:</span><span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">)):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_energy_volume_curve</span><span class="p">(</span><span class="n">volume_lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">energy_lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">)):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">volume_lst</span><span class="p">,</span> <span class="n">energy_lst</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Volume&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Energy&quot;</span><span class="p">)</span>
@@ -563,7 +567,7 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 <p>Next, we need a function to write the QE input files. The <code class="docutils literal notranslate"><span class="pre">input_dict</span></code> has to contain all essential input information like the structure, the pseudopotentials, the number of kpoints, the calculation type and the smearing type.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">working_directory</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">working_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">):</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;input.pwi&quot;</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">write</span><span class="p">(</span>
@@ -648,8 +652,10 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 
 
 <span class="k">def</span> <span class="nf">write_qe_input_set</span><span class="p">(</span>
-    <span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span><span class="p">,</span> <span class="n">input_set_generator</span><span class="p">:</span> <span class="n">InputGenerator</span><span class="o">=</span><span class="n">QEInputGenerator</span><span class="p">(),</span> <span class="n">working_directory</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;.&quot;</span>
-<span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span><span class="p">,</span>
+    <span class="n">input_set_generator</span><span class="p">:</span> <span class="n">InputGenerator</span> <span class="o">=</span> <span class="n">QEInputGenerator</span><span class="p">(),</span>
+    <span class="n">working_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">qis</span> <span class="o">=</span> <span class="n">input_set_generator</span><span class="o">.</span><span class="n">get_input_set</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
     <span class="n">qis</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="n">working_directory</span><span class="o">=</span><span class="n">working_directory</span><span class="p">)</span>
 </pre></div>
@@ -667,7 +673,7 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 <span class="n">QE_CMD</span> <span class="o">=</span> <span class="s2">&quot;mpirun -np 1 pw.x -in input.pwi &gt; output.pwo&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">run_qe</span><span class="p">(</span><span class="n">qe_cmd</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="n">QE_CMD</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">run_qe</span><span class="p">(</span><span class="n">qe_cmd</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">QE_CMD</span><span class="p">):</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">qe_cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
@@ -704,7 +710,7 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
     <span class="n">input_set_generator</span><span class="p">:</span> <span class="n">QEInputGenerator</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">QEInputGenerator</span><span class="p">)</span>
 
     <span class="nd">@job</span><span class="p">(</span><span class="n">output_schema</span><span class="o">=</span><span class="n">QETaskDoc</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span><span class="o">|</span><span class="n">MSONAtoms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QETaskDoc</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">make</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span> <span class="o">|</span> <span class="n">MSONAtoms</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QETaskDoc</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run a QE calculation.</span>
 
@@ -764,7 +770,7 @@ A high-throughput setup (i.e., parallel execution of independent parts in the wo
 
 
 <span class="nd">@job</span>
-<span class="k">def</span> <span class="nf">get_ev_curve</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span><span class="o">|</span><span class="n">MSONAtoms</span><span class="p">,</span> <span class="n">strain_lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">)):</span>
+<span class="k">def</span> <span class="nf">get_ev_curve</span><span class="p">(</span><span class="n">structure</span><span class="p">:</span> <span class="n">Atoms</span> <span class="o">|</span> <span class="n">MSONAtoms</span><span class="p">,</span> <span class="n">strain_lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">float</span><span class="p">)):</span>
     <span class="n">structures</span> <span class="o">=</span> <span class="n">generate_structures</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">strain_lst</span><span class="o">=</span><span class="n">strain_lst</span><span class="p">)</span>
     <span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">volumes</span> <span class="o">=</span> <span class="p">[]</span>
